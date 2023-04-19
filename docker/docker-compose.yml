@@ -1,0 +1,78 @@
+version: '3'
+services:
+
+  # PHP Service
+  backend:
+    build:
+      context: .
+      dockerfile: ./backend/Dockerfile
+    container_name: "LARAVEL9_backend"
+    tty: true
+    dns:
+      - '8.8.8.8'
+    environment:
+      SERVICE_NAME: backend
+    working_dir: /var/www/backend
+    ports:
+      - '8080:8080'
+    volumes:
+      - ./../:/var/www/backend
+      - ./php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    networks:
+      - river
+
+  # Frontend Service
+  # frontend:
+  #   build:
+  #     context: .
+  #     dockerfile: ./frontend/Dockerfile
+  #   container_name: "LARAVEL9_frontend"
+  #   working_dir: /usr/src/app/frontend
+  #   volumes:
+  #     - ./../../frontend/:/usr/src/app/frontend
+  #   ports:
+  #     - '4200:4200'
+  #   command: >
+  #     bash -c "npm install && npm run watch"
+  #   networks:
+  #     - river
+
+  # Nginx Service
+  webserver:
+    image: nginx:alpine
+    container_name: "LARAVEL9_webserver"
+    tty: true
+    ports:
+      - "8081:80"
+      - "443:443"
+    volumes:
+      - ./../:/var/www/backend
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
+    networks:
+      - river
+
+  # MySQL Service
+  # mariadb:
+  #   image: mariadb:10.4
+  #   container_name: "LARAVEL9_mysql"
+  #   tty: true
+  #   ports:
+  #     - "3306:3306"
+  #   environment:
+  #     #MYSQL_USER: abdou
+  #     MYSQL_PASSWORD: 123
+  #     MYSQL_DATABASE: river_dev_2022
+  #     MARIADB_ROOT_PASSWORD: 123
+  #     MYSQL_ROOT_HOST: '%'
+  #     SERVICE_NAME: mysql
+  #   volumes:
+  #     - ./mysql/dbdata/:/var/lib/mysql/
+  #     #- ./mysql/my.cnf:/etc/mysql/my.cnf
+  #     - ./mysql/backups/:/etc/mysql/backups/
+  #   networks:
+  #     - river
+
+# Docker Networks
+networks:
+  river:
+    driver: bridge
